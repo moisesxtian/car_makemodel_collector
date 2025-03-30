@@ -37,7 +37,7 @@ def compress_image(img_path, max_size_kb=100):
     except Exception as e:
         print(f"Error compressing image {img_path}: {e}")
 
-def download_car_images(make, model, num_images=100, save_path='scraped_dataset'):
+def download_car_images(make, model, num_images=17, save_path='scraped_dataset'):
     orientations = ['front', 'side', 'back']
     years = [2016, 2018, 2020, 2022, 2024, 2025]
 
@@ -60,33 +60,48 @@ def download_car_images(make, model, num_images=100, save_path='scraped_dataset'
                 parser_threads=1,
                 downloader_threads=1  # Set to 1 to control download rate
             )
-            crawler.crawl(
-                keyword=query,
-                max_num=num_images,
-                min_size=(500, 500)
-            )
 
-            for file in os.listdir(temp_dir):
-                if file.lower().endswith(('.jpg', '.png', '.jpeg')):
-                    src_path = os.path.join(temp_dir, file)
-                    if not is_duplicate(src_path, hash_dict):
-                        compress_image(src_path)  # Compress the image
-                        dst_path = os.path.join(final_folder, f"{orientation}_{year}_{file}")
-                        shutil.move(src_path, dst_path)
-                    else:
-                        os.remove(src_path)
+            try:
+                crawler.crawl(
+                    keyword=query,
+                    max_num=num_images,
+                    min_size=(500, 500)
+                )
+            except Exception as e:
+                print(f"Error while crawling images for '{query}': {e}")
+                shutil.rmtree(temp_dir)
+                continue  # Skip to the next query
+
+            downloaded_files = [f for f in os.listdir(temp_dir) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
+
+            if not downloaded_files:
+                print(f"No images found for '{query}'. Skipping...")
+                shutil.rmtree(temp_dir)
+                continue  # Skip to the next query
+
+            for file in downloaded_files:
+                src_path = os.path.join(temp_dir, file)
+                if not is_duplicate(src_path, hash_dict):
+                    compress_image(src_path)  # Compress the image
+                    dst_path = os.path.join(final_folder, f"{orientation}_{year}_{file}")
+                    shutil.move(src_path, dst_path)
+                else:
+                    os.remove(src_path)
+            
             shutil.rmtree(temp_dir)
-            time.sleep(5)  # Implement a delay between requests to avoid rate limiting
+            time.sleep(3)  # Implement a delay between requests to avoid rate limiting
 
     print(f"\nDownload complete for {make} {model}!\n")
 
 # Car dataset (example subset; extend as needed)
 car_data = {
-    "Tesla": ["Model 3", "Model S", "Model X", "Model Y"]
+    "Lexus": ["LS", "LX", "GX"],
+    
+    "BMW": ["X1", "X3", "X5", "X7", "3 Series", "5 Series", "7 Series", "Z4", "M4"],
     # Add more makes and models as needed
 }
 
 # Run the downloader for each car make and model.
 for make, models in car_data.items():
     for model in models:
-        download_car_images(make, model, num_images=40, save_path='scraped_dataset_2')
+        download_car_images(make, model, num_images=20, save_path='scraped_dataset_2')
