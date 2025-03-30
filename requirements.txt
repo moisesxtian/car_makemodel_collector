@@ -1,3 +1,6 @@
 icrawler
 pillow
 imagehash
+opencv-python
+ultralytics
+bing-image-downloader
