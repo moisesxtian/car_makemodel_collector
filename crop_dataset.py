@@ -39,5 +39,5 @@ def process_images(input_folder):
                 print(f"No car detected in {filename}. Skipping cropping.")
 
 if __name__ == "__main__":
-    input_folder = 'scraped_dataset/toyota_avanza'
+    input_folder = 'scraped_dataset/toyota_yaris cross'
     process_images(input_folder)
