@@ -1,49 +1,61 @@
-import tensorflow as tf
-import numpy as np
+import os
 import cv2
+import albumentations as A
+import numpy as np
+from pathlib import Path
 
-# Load the TFLite model
-interpreter = tf.lite.Interpreter(model_path="Tesla_ModelClassifier_MobNet.tflite")
-interpreter.allocate_tensors()
+# Define your image augmentation pipeline
+transform = A.Compose([
+    A.HorizontalFlip(p=0.5),  # Cars can be flipped horizontally without losing class meaning
+    A.RandomBrightnessContrast(p=0.5),  # Vary lighting conditions
+    A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=15, val_shift_limit=10, p=0.4),  # Simulate camera variations
+    A.RGBShift(r_shift_limit=10, g_shift_limit=10, b_shift_limit=10, p=0.3),  # Subtle color variations
+    A.MotionBlur(blur_limit=3, p=0.2),  # Simulate movement
+    A.Rotate(limit=10, p=0.3),  # Small angle rotation (not too large)
+    A.GaussNoise(var_limit=(10.0, 25.0), p=0.2)  # Corrected argument
 
-# Get input and output details
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
+])
 
-# Define Tesla models (update if necessary)
-tesla_models = ["Model S", "Model 3", "Model X", "Model Y"]
+def augment_image(image_path, num_augmentations=3):
+    image = cv2.imread(image_path)
+    if image is None:  # Check if image is loaded properly
+        print(f"Error loading image: {image_path}")
+        return []
 
-def preprocess_image(image_path):
-    """Loads an image, resizes it to 224x224, and normalizes it."""
-    image = cv2.imread(image_path)  # Read image
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert to RGB
-    image = cv2.resize(image, (224, 224))  # Resize to match model input
-    image = image.astype(np.float32) / 255.0  # Normalize to [0,1]
-    image = np.expand_dims(image, axis=0)  # Add batch dimension
-    return image
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-def predict(image_path):
-    """Runs inference on a given image and returns predicted Tesla model & confidence."""
-    image = preprocess_image(image_path)
+    augmented_images = []
+    for _ in range(num_augmentations):
+        augmented = transform(image=image)
+        aug_img = cv2.cvtColor(augmented["image"], cv2.COLOR_RGB2BGR)
+        augmented_images.append(aug_img)
 
-    # Set model input
-    interpreter.set_tensor(input_details[0]['index'], image)
+    return augmented_images
 
-    # Run inference
-    interpreter.invoke()
 
-    # Get model output
-    output_data = interpreter.get_tensor(output_details[0]['index'])
-    prediction = np.squeeze(output_data)  # Remove batch dimension
+def augment_dataset(input_root, output_root, num_augmentations=3):
+    input_root = Path(input_root)
+    output_root = Path(output_root)
+    output_root.mkdir(parents=True, exist_ok=True)
 
-    # Get the best prediction
-    predicted_index = np.argmax(prediction)
-    confidence = prediction[predicted_index]
+    for brand in input_root.iterdir():
+        if brand.is_dir():
+            for model in brand.iterdir():
+                if model.is_dir():
+                    output_model_dir = output_root / brand.name / model.name
+                    output_model_dir.mkdir(parents=True, exist_ok=True)
 
-    return tesla_models[predicted_index], confidence
+                    for image_file in model.glob("*.[jp][pn]g"):
+                        augmented_images = augment_image(str(image_file), num_augmentations)
 
-# Example usage
-image_path = "D:/Repositories_2/Car Dataset Collector/scraped_dataset_2/Tesla/tesla_model x/side_2025_000021.png"  # Change to your image path
-model_name, confidence = predict(image_path)
+                        for idx, aug_img in enumerate(augmented_images):
+                            aug_name = f"{image_file.stem}_aug{idx+1}{image_file.suffix}"
+                            aug_path = output_model_dir / aug_name
+                            cv2.imwrite(str(aug_path), aug_img)
 
-print(f"Model: {model_name}, Confidence: {confidence:.2f}")
+if __name__ == "__main__":
+    INPUT_FOLDER = "For Augmentation"  # Your original dataset
+    OUTPUT_FOLDER = "Augmented_Dataset"  # Where augmented images will be saved
+    NUM_AUGS_PER_IMAGE = 3
+
+    augment_dataset(INPUT_FOLDER, OUTPUT_FOLDER, NUM_AUGS_PER_IMAGE)
