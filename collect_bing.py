@@ -8,9 +8,7 @@ import imagehash
 
 # Car dataset
 car_data = {
-    "Mitsubishi": ["Montero Sport", "Strada", "Xpander"],
-    "Ford": ["Ranger", "Everest", "Mustang"],
-    "Honda": ["City", "Civic", "CR-V"],
+    "Tesla": ["Roadster", "Cybertruck", ""],
 }
 
 # Faster hashing for duplicate detection
@@ -61,7 +59,7 @@ def process_image(src_path, dst_path, hash_dict):
 # Optimized image scraping function
 def download_car_images(make, model, num_images=20, save_path="scraped_dataset"):
     """ Download and process car images for a given make and model. """
-    orientations = ["front", "side", "back"]
+    orientations = ["Back", "Rear", "for sale"]
     years = [2018, 2022, 2025]  # Reduced to 3 years for speedup
     
     final_folder = os.path.join(save_path, f"{make.lower()}_{model.lower()}")
@@ -72,7 +70,7 @@ def download_car_images(make, model, num_images=20, save_path="scraped_dataset")
     with ThreadPoolExecutor(max_workers=5) as executor:
         for orientation in orientations:
             for year in years:
-                query = f"{make} {model} {year} {orientation} view car -sidemirror -accessories -interior"
+                query = f"{make} {model} {year} {orientation} view car for -sidemirror -accessories -interior"
                 temp_dir = os.path.join(save_path, "temp")
                 os.makedirs(temp_dir, exist_ok=True)
 

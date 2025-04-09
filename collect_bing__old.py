@@ -6,6 +6,7 @@ import shutil
 
 
 car_data = {
+    "Kia": ["Picanto", "Rio", "Soluto", "Seltos", "Sportage", "Sorento", "Carnival", "Stonic", "K2500", "Sonet", "EV6"],
     "Ford": ["Territory", "EcoSport", "F-150", "Transit"],
     
     "Honda": ["City", "Civic", "BR-V", "CR-V", "HR-V", "Accord", "Jazz", "Brio", "Mobilio", "Pilot", "Odyssey"],
@@ -22,7 +23,6 @@ car_data = {
     
     "Chevrolet": ["Spark", "Sail", "Trax", "Trailblazer", "Colorado", "Suburban", "Camaro", "Tahoe", "Captiva", "Orlando"],
     
-    "Kia": ["Picanto", "Rio", "Soluto", "Seltos", "Sportage", "Sorento", "Carnival", "Stonic", "K2500", "Sonet", "EV6"],
     
     "Isuzu": ["D-Max", "mu-X", "Traviz", "N-Series", "F-Series", "C&E-Series", "Crosswind"],
     
