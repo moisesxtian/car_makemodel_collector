@@ -38,7 +38,7 @@ def compress_image(img_path, max_size_kb=100):
         print(f"Error compressing image {img_path}: {e}")
 
 def download_car_images(make, model, num_images=17, save_path='scraped_dataset'):
-    orientations = ['front', 'side', 'back']
+    orientations = ['Front', 'Back']
     years = [2016, 2018, 2020, 2022, 2024, 2025]
 
     final_folder = os.path.join(save_path, f"{make.lower()}_{model.lower()}")
@@ -95,13 +95,13 @@ def download_car_images(make, model, num_images=17, save_path='scraped_dataset')
 
 # Car dataset (example subset; extend as needed)
 car_data = {
-    "Lexus": ["LS", "LX", "GX"],
-    
-    "BMW": ["X1", "X3", "X5", "X7", "3 Series", "5 Series", "7 Series", "Z4", "M4"],
+       "Hyundai": ["Accent", "Tucson", "Santa Fe", "Starex", "Kona", "Venue", "Palisade", "Ioniq", "Stargazer", "Stargazer X", 
+                "Creta", "Elantra", "Porter", "Grand Starex"],
+
     # Add more makes and models as needed
 }
 
 # Run the downloader for each car make and model.
 for make, models in car_data.items():
     for model in models:
-        download_car_images(make, model, num_images=20, save_path='scraped_dataset_2')
+        download_car_images(make, model, num_images=80, save_path='scraped_dataset_2')
