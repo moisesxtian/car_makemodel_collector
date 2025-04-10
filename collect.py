@@ -95,8 +95,8 @@ def download_car_images(make, model, num_images=17, save_path='scraped_dataset')
 
 # Car dataset (example subset; extend as needed)
 car_data = {
-       "Hyundai": ["Accent", "Tucson", "Santa Fe", "Starex", "Kona", "Venue", "Palisade", "Ioniq", "Stargazer", "Stargazer X", 
-                "Creta", "Elantra", "Porter", "Grand Starex"],
+       "Kia": ["Picanto", "Rio", "Soluto", "Seltos", "Sportage", "Sorento", "Carnival", "Stonic", "K2500", "Sonet", "EV6"],
+
 
     # Add more makes and models as needed
 }
